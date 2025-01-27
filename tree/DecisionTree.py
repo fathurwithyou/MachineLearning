@@ -15,13 +15,18 @@ class DecisionTree(ABC):
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
         self.root = None
+        self.isfitted = False
 
     def fit(self, X, y):
         self.n_features = X.shape[1]
         self.root = self._grow_tree(X, y)
+        self.isfitted = True
         return self
 
     def predict(self, X):
+        self._check_is_fitted()
+        if np.ndim(X) != 2:
+            raise ValueError("X must be a 2D array")
         return np.array([self._traverse_tree(x, self.root) for x in X])
 
     def _grow_tree(self, X, y, depth=0):
@@ -59,12 +64,34 @@ class DecisionTree(ABC):
             return self._traverse_tree(x, node.left)
         return self._traverse_tree(x, node.right)
 
-    @abstractmethod
     def _best_split(self, X, y):
-        """Find the best split for a node."""
-        pass
+        best_gain = float('-inf')
+        best_feature = None
+        best_threshold = None
+
+        for feature in range(self.n_features):
+            thresholds = np.unique(X[:, feature])
+            
+            for threshold in thresholds:
+                gain = self._information_gain(y, X[:, feature], threshold)
+
+                if gain > best_gain:
+                    best_gain = gain
+                    best_feature = feature
+                    best_threshold = threshold
+
+        return best_feature, best_threshold
 
     @abstractmethod
     def _calculate_leaf_value(self, y):
         """Calculate the predicted value for a leaf node."""
         pass
+    
+    @abstractmethod
+    def _information_gain(self, y, X_column, threshold):
+        """Calculate the information gain from a split."""
+        pass
+    
+    def _check_is_fitted(self):
+        if not self.isfitted:
+            raise ValueError("You must call `fit` before `predict`")

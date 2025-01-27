@@ -6,27 +6,7 @@ class DecisionTreeRegressor(DecisionTree):
         """Returns the mean value of the node"""
         return np.mean(y)
 
-    def _best_split(self, X, y):
-        best_var_reduction = -float('inf')
-        best_feature = None
-        best_threshold = None
-
-        parent_var = self._variance(y)
-
-        for feature in range(self.n_features):
-            thresholds = np.unique(X[:, feature])
-            
-            for threshold in thresholds:
-                var_reduction = self._variance_reduction(y, X[:, feature], threshold)
-
-                if var_reduction > best_var_reduction:
-                    best_var_reduction = var_reduction
-                    best_feature = feature
-                    best_threshold = threshold
-
-        return best_feature, best_threshold
-
-    def _variance_reduction(self, y, X_column, threshold):
+    def _information_gain(self, y, X_column, threshold):
         parent_var = self._variance(y)
 
         left_idxs = X_column < threshold
