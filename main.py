@@ -48,8 +48,10 @@ def main():
     for name, model in CLASSIFIER.items():
         model.fit(X, y)
         predictions = model.predict(X)
+        probabilities = model.predict_proba(X)
         score = model.score(X, y)
         print(f"{name} - predictions: {predictions}, score: {score:.4f}")
+        print(f"  probabilities[0]: {probabilities[0]}")
 
     print("\n=== REGRESSORS ===")
     for name, model in REGRESSOR.items():

@@ -39,3 +39,23 @@ class DecisionTreeClassifier(DecisionTree, ClassifierMixin):
         ps = hist / len(y)
         ps = ps[ps > 0]
         return -np.sum(ps * np.log2(ps))
+
+    def predict_proba(self, X):
+        self._check_is_fitted()
+        X = np.array(X)
+        if np.ndim(X) != 2:
+            raise ValueError("X must be a 2D array")
+        return np.array([self._traverse_tree_proba(x, self.root) for x in X])
+
+    def _traverse_tree_proba(self, x, node):
+        if node.value is not None:
+            proba = np.zeros(len(self.classes_))
+            for label in node.samples:
+                class_idx = np.where(self.classes_ == label)[0][0]
+                proba[class_idx] += 1
+            proba /= len(node.samples)
+            return proba
+
+        if x[node.feature] < node.threshold:
+            return self._traverse_tree_proba(x, node.left)
+        return self._traverse_tree_proba(x, node.right)

@@ -99,9 +99,20 @@ class SVC(BaseEstimator, ClassifierMixin):
         self.is_fitted = True
         return self
 
-    def predict(self, X):
+    def decision_function(self, X):
         self._check_is_fitted()
         X = np.array(X)
         K = self._kernel_function(X, self.support_vectors_)
-        y_pred = np.sum(self.support_alpha_ * self.support_labels_ * K.T, axis=0) + self.b
-        return np.where(y_pred <= 0, 0, 1)
+        return np.sum(self.support_alpha_ * self.support_labels_ * K.T, axis=0) + self.b
+
+    def predict_proba(self, X):
+        self._check_is_fitted()
+        decision = self.decision_function(X)
+        prob_positive = 1 / (1 + np.exp(-decision))
+        prob_negative = 1 - prob_positive
+        return np.column_stack([prob_negative, prob_positive])
+
+    def predict(self, X):
+        self._check_is_fitted()
+        decision = self.decision_function(X)
+        return np.where(decision <= 0, 0, 1)

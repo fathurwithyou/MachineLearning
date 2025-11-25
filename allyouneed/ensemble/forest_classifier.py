@@ -21,7 +21,8 @@ class RandomForestClassifier(BaseEstimator, ClassifierMixin):
         if self.random_state is not None:
             np.random.seed(self.random_state)
 
-        self.n_classes_ = len(np.unique(y))
+        self.classes_ = np.unique(y)
+        self.n_classes_ = len(self.classes_)
         self.n_features_ = X.shape[1]
 
         if isinstance(self.max_features, str):
@@ -60,17 +61,24 @@ class RandomForestClassifier(BaseEstimator, ClassifierMixin):
         tree.fit(X_subset, bootstrap_y)
         return tree
 
-    def predict(self, X):
+    def predict_proba(self, X):
         self._check_is_fitted()
         X = np.array(X)
 
-        predictions = []
-        for tree in self.trees:
-            X_subset = X[:, tree.feature_idxs]
-            predictions.append(tree.predict(X_subset))
+        n_samples = X.shape[0]
+        all_probas = np.zeros((len(self.trees), n_samples, len(self.classes_)))
 
-        predictions = np.array(predictions)
-        return np.array([
-            np.bincount(predictions[:, i]).argmax()
-            for i in range(len(X))
-        ])
+        for i, tree in enumerate(self.trees):
+            X_subset = X[:, tree.feature_idxs]
+            tree_probas = tree.predict_proba(X_subset)
+
+            for j, tree_class in enumerate(tree.classes_):
+                class_idx = np.where(self.classes_ == tree_class)[0][0]
+                all_probas[i, :, class_idx] = tree_probas[:, j]
+
+        return np.mean(all_probas, axis=0)
+
+    def predict(self, X):
+        self._check_is_fitted()
+        probas = self.predict_proba(X)
+        return self.classes_[np.argmax(probas, axis=1)]

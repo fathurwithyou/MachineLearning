@@ -3,12 +3,13 @@ import numpy as np
 from abc import abstractmethod
 
 class Node:
-    def __init__(self, feature=None, threshold=None, left=None, right=None, value=None):
+    def __init__(self, feature=None, threshold=None, left=None, right=None, value=None, samples=None):
         self.feature = feature
         self.threshold = threshold
         self.left = left
         self.right = right
         self.value = value
+        self.samples = samples
 
 class DecisionTree(BaseEstimator):
     def __init__(self, max_depth=None, min_samples_split=2, min_samples_leaf=1):
@@ -36,21 +37,21 @@ class DecisionTree(BaseEstimator):
         # Stopping criteria
         if (self.max_depth is not None and depth >= self.max_depth) or \
            n_samples < self.min_samples_split:
-            return Node(value=self._calculate_leaf_value(y))
+            return Node(value=self._calculate_leaf_value(y), samples=y)
 
         # Find the best split
         best_feature, best_threshold = self._best_split(X, y)
-        
+
         if best_feature is None:
-            return Node(value=self._calculate_leaf_value(y))
+            return Node(value=self._calculate_leaf_value(y), samples=y)
 
         # Create child nodes
         left_idxs = X[:, best_feature] < best_threshold
         right_idxs = ~left_idxs
-        
+
         # Check min_samples_leaf constraint
         if np.sum(left_idxs) < self.min_samples_leaf or np.sum(right_idxs) < self.min_samples_leaf:
-            return Node(value=self._calculate_leaf_value(y))
+            return Node(value=self._calculate_leaf_value(y), samples=y)
 
         left = self._grow_tree(X[left_idxs], y[left_idxs], depth + 1)
         right = self._grow_tree(X[right_idxs], y[right_idxs], depth + 1)
