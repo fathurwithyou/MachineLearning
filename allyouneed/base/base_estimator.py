@@ -5,12 +5,8 @@ class BaseEstimator(ABC):
         self.is_fitted = False
 
     @abstractmethod
-    def fit(self, X, y):
+    def fit(self, X, y=None):
         return self
-
-    @abstractmethod
-    def predict(self, X):
-        ...
 
     def _check_is_fitted(self):
         if not self.is_fitted:
