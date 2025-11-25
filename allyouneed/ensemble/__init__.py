@@ -1,2 +1,3 @@
 from .forest_classifier import RandomForestClassifier
 from .forest_regressor import RandomForestRegressor
+from .extra_trees import ExtraTreesClassifier, ExtraTreesRegressor

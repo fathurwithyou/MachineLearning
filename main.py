@@ -2,7 +2,7 @@ import numpy as np
 from allyouneed.linear_model import LogisticRegression, LinearRegression
 from allyouneed.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from allyouneed.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from allyouneed.ensemble import RandomForestClassifier, RandomForestRegressor
+from allyouneed.ensemble import RandomForestClassifier, RandomForestRegressor, ExtraTreesClassifier, ExtraTreesRegressor
 from allyouneed.svm import SVC, SVR
 from allyouneed.cluster import KMeans
 from allyouneed.decomposition import PCA, TruncatedSVD
@@ -12,6 +12,7 @@ CLASSIFIER = {
     "KNN": KNeighborsClassifier(n_neighbors=3),
     "DecisionTree": DecisionTreeClassifier(max_depth=5),
     "RandomForest": RandomForestClassifier(n_estimators=10, max_depth=5),
+    "ExtraTrees": ExtraTreesClassifier(n_estimators=10, max_depth=5),
     "SVC": SVC(kernel='linear', C=1.0),
     "LogisticRegression": LogisticRegression(max_iter=200),
 }
@@ -20,6 +21,7 @@ REGRESSOR = {
     "KNN": KNeighborsRegressor(n_neighbors=3),
     "DecisionTree": DecisionTreeRegressor(max_depth=5),
     "RandomForest": RandomForestRegressor(n_estimators=10, max_depth=5),
+    "ExtraTrees": ExtraTreesRegressor(n_estimators=10, max_depth=5),
     "SVR": SVR(kernel='linear', C=1.0),
     "LinearRegression": LinearRegression(),
 }
